@@ -1,7 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    alias(libs.plugins.android.libraries.mapsplatform.secrets.gradle)
+    alias(libs.plugins.devtools.ksp)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.dagger.hilt.android)
 }
 
 android {
@@ -70,7 +73,6 @@ secrets {
 
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -81,6 +83,9 @@ dependencies {
     implementation(libs.androidx.material3)
 
     implementation(libs.google.play.services.maps)
+    implementation(libs.hilt.android)
+
+    ksp(libs.hilt.android.compiler)
 
     testImplementation(libs.junit)
 

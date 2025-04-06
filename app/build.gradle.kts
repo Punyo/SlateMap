@@ -9,9 +9,9 @@ plugins {
 
 android {
     namespace = "com.punyo.slatemap"
-    compileSdk = 34
+    compileSdk = 35
 
-    buildFeatures{
+    buildFeatures {
         buildConfig = true
     }
 
@@ -33,7 +33,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -67,10 +67,8 @@ secrets {
     // Configure which keys should be ignored by the plugin by providing regular expressions.
     // "sdk.dir" is ignored by default.
     ignoreList.add("keyToIgnore") // Ignore the key "keyToIgnore"
-    ignoreList.add("sdk.*")       // Ignore all keys matching the regexp "sdk.*"
+    ignoreList.add("sdk.*") // Ignore all keys matching the regexp "sdk.*"
 }
-
-
 
 dependencies {
     implementation(libs.androidx.core.ktx)
@@ -84,6 +82,8 @@ dependencies {
 
     implementation(libs.google.play.services.maps)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
 
     ksp(libs.hilt.android.compiler)
 

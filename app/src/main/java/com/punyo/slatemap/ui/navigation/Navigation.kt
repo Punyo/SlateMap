@@ -56,21 +56,18 @@ fun Navigation(modifier: Modifier = Modifier) {
             NavigationDestination.Map -> {
                 MapScreen(
                     modifier = Modifier.padding(innerPadding),
-                    title = currentNavState.name,
                 )
             }
 
             NavigationDestination.Temp1 -> {
                 MapScreen(
                     modifier = Modifier.padding(innerPadding),
-                    title = currentNavState.name,
                 )
             }
 
             NavigationDestination.Temp2 -> {
                 MapScreen(
                     modifier = Modifier.padding(innerPadding),
-                    title = currentNavState.name,
                 )
             }
         }

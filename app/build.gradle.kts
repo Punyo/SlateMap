@@ -75,15 +75,19 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.material3)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-
-    implementation(libs.google.play.services.maps)
-    implementation(libs.hilt.android)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)
+
+    implementation(libs.google.play.services.maps)
+    implementation(libs.google.play.services.maps.compose)
+    implementation(libs.google.android.maps.utils)
+    implementation(libs.maps.utils.ktx)
+    implementation(libs.hilt.android)
+    implementation(libs.play.services.location)
 
     ksp(libs.hilt.android.compiler)
 

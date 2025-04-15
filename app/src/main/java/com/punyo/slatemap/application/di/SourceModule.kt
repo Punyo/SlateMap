@@ -2,6 +2,7 @@ package com.punyo.slatemap.application.di
 
 import android.content.Context
 import com.google.android.gms.location.LocationServices
+import com.punyo.slatemap.data.location.source.UnlockedLocationSource
 import com.punyo.slatemap.data.location.source.UserLocationSource
 import dagger.Module
 import dagger.Provides
@@ -18,4 +19,8 @@ object SourceModule {
     fun provideUserLocationSource(
         @ApplicationContext context: Context,
     ): UserLocationSource = UserLocationSource(LocationServices.getFusedLocationProviderClient(context))
+
+    @Provides
+    @Singleton
+    fun provideUnlockedLocationSource(): UnlockedLocationSource = UnlockedLocationSource()
 }

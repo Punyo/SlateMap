@@ -24,13 +24,17 @@ class MapScreenViewModel
         init {
             locationRepository
                 .getLastLocation()
-                .addOnSuccessListener { location: Location? ->
-                    state.value =
-                        state.value.copy(
-                            currentLocation = location,
-                            cameraPosition = getCameraPositionState(location),
-                        )
+                .onSuccess { it ->
+                    it.addOnSuccessListener { onLocationGetSuccess(it) }
                 }
+        }
+
+        private fun onLocationGetSuccess(location: Location?) {
+            state.value =
+                state.value.copy(
+                    currentLocation = location,
+                    cameraPosition = getCameraPositionState(location),
+                )
         }
 
         private fun getCameraPositionState(location: Location?) =

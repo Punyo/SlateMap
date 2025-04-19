@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.punyo.slatemap.application.NavigationDestination
+import com.punyo.slatemap.ui.debug.DebugScreen
 import com.punyo.slatemap.ui.map.MapScreen
 
 @Composable
@@ -60,7 +61,7 @@ fun Navigation(modifier: Modifier = Modifier) {
             }
 
             NavigationDestination.Temp1 -> {
-                MapScreen(
+                DebugScreen(
                     modifier = Modifier.padding(innerPadding),
                 )
             }
@@ -89,11 +90,4 @@ private fun NavigationTopBar(
                 titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             ),
     )
-}
-
-@Composable
-private fun NavigationBottomBar(
-    onItemClick: (NavigationDestination) -> Unit,
-    modifier: Modifier = Modifier,
-) {
 }

@@ -1,8 +1,19 @@
 package com.punyo.slatemap.data.location
 
+import android.content.Context
+import android.location.Address
 import android.location.Location
 import com.google.android.gms.tasks.Task
 
 interface LocationRepository {
-    fun getLastLocation(): Task<Location>
+    fun getLastLocation(): Result<Task<Location>>
+
+    fun setMockLocation(location: Location): Result<Nothing?>
+
+    fun clearMockLocation(): Result<Nothing?>
+
+    suspend fun getAddressFromLocation(
+        context: Context,
+        location: Location,
+    ): Address
 }

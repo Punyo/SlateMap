@@ -18,7 +18,7 @@ import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.data.geojson.GeoJsonLayer
 import com.punyo.slatemap.R
-import com.punyo.slatemap.application.LatLngConstants
+import com.punyo.slatemap.application.constant.LatLngConstants
 
 @OptIn(MapsComposeExperimentalApi::class)
 @Composable

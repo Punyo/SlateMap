@@ -1,4 +1,4 @@
-package com.punyo.slatemap.application
+package com.punyo.slatemap.application.constant
 
 object GeoJsonPropertyNameConstants {
     const val PREFECTURE = "N03_001"

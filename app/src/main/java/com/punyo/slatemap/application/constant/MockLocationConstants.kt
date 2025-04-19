@@ -1,4 +1,4 @@
-package com.punyo.slatemap.application
+package com.punyo.slatemap.application.constant
 
 import android.location.Location
 

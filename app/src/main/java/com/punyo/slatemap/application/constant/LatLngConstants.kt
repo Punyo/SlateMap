@@ -1,4 +1,4 @@
-package com.punyo.slatemap.application
+package com.punyo.slatemap.application.constant
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds

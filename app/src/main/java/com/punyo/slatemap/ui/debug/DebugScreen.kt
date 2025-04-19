@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.punyo.slatemap.application.MockLocationConstants
+import com.punyo.slatemap.application.constant.MockLocationConstants
 
 @Composable
 fun DebugScreen(

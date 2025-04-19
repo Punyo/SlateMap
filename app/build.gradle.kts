@@ -1,14 +1,17 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    alias(libs.plugins.android.libraries.mapsplatform.secrets.gradle)
+    alias(libs.plugins.devtools.ksp)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.dagger.hilt.android)
 }
 
 android {
     namespace = "com.punyo.slatemap"
-    compileSdk = 34
+    compileSdk = 35
 
-    buildFeatures{
+    buildFeatures {
         buildConfig = true
     }
 
@@ -30,7 +33,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -64,23 +67,29 @@ secrets {
     // Configure which keys should be ignored by the plugin by providing regular expressions.
     // "sdk.dir" is ignored by default.
     ignoreList.add("keyToIgnore") // Ignore the key "keyToIgnore"
-    ignoreList.add("sdk.*")       // Ignore all keys matching the regexp "sdk.*"
+    ignoreList.add("sdk.*") // Ignore all keys matching the regexp "sdk.*"
 }
 
-
-
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.material3)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(libs.google.play.services.maps)
+    implementation(libs.google.play.services.maps.compose)
+    implementation(libs.google.android.maps.utils)
+    implementation(libs.maps.utils.ktx)
+    implementation(libs.hilt.android)
+    implementation(libs.play.services.location)
+
+    ksp(libs.hilt.android.compiler)
 
     testImplementation(libs.junit)
 

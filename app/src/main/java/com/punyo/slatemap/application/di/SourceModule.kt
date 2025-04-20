@@ -23,4 +23,10 @@ object SourceModule {
     @Provides
     @Singleton
     fun provideUnlockedLocationSource(): UnlockedLocationSource = UnlockedLocationSource()
+
+    @Singleton
+    @Provides
+    fun provideApplicationContext(
+        @ApplicationContext applicationContext: Context,
+    ): Context = applicationContext
 }

@@ -1,40 +1,53 @@
 package com.punyo.slatemap.ui.map
 
+import android.content.Context
 import android.location.Location
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
+import com.punyo.slatemap.application.Regions
 import com.punyo.slatemap.data.location.LocationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MapScreenViewModel
     @Inject
     constructor(
-        locationRepository: LocationRepository,
+        private val locationRepository: LocationRepository,
+        private val applicationContext: Context,
     ) : ViewModel() {
         private val state = MutableStateFlow(MapScreenUiState())
         val uiState: StateFlow<MapScreenUiState> = state.asStateFlow()
 
         init {
             locationRepository
-                .getLastLocation()
-                .onSuccess { it ->
-                    it.addOnSuccessListener { onLocationGetSuccess(it) }
-                }
+                .addLocationCallback(
+                    onLocationUpdate = { location -> onLocationGetSuccess(location) },
+                )
         }
 
         private fun onLocationGetSuccess(location: Location?) {
-            state.value =
-                state.value.copy(
-                    currentLocation = location,
-                    cameraPosition = getCameraPositionState(location),
-                )
+            viewModelScope.launch {
+                val region =
+                    location?.let {
+                        locationRepository.getRegionFromLocation(
+                            location = it,
+                            context = applicationContext,
+                        )
+                    }
+                state.value =
+                    state.value.copy(
+                        currentLocation = location,
+                        currentRegion = region,
+                    )
+            }
         }
 
         private fun getCameraPositionState(location: Location?) =
@@ -52,6 +65,7 @@ class MapScreenViewModel
 
 data class MapScreenUiState(
     val currentLocation: Location? = null,
+    val currentRegion: Regions? = null,
     val cameraPosition: CameraPositionState =
         CameraPositionState(
             position =

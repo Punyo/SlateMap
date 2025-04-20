@@ -35,6 +35,8 @@ class MapScreenViewModel
 
         private fun onLocationGetSuccess(location: Location?) {
             viewModelScope.launch {
+                val address =
+                    location?.let { locationRepository.getAddressFromLocation(applicationContext, it) }
                 val region =
                     location?.let {
                         locationRepository.getRegionFromLocation(
@@ -46,6 +48,7 @@ class MapScreenViewModel
                     state.value.copy(
                         currentLocation = location,
                         currentRegion = region,
+                        currentLocalityName = address?.locality,
                     )
             }
         }
@@ -66,6 +69,8 @@ class MapScreenViewModel
 data class MapScreenUiState(
     val currentLocation: Location? = null,
     val currentRegion: Regions? = null,
+    val currentLocalityName: String? = null,
+    val unlockedLocationsIdInCurrentRegion: List<Int>? = null,
     val cameraPosition: CameraPositionState =
         CameraPositionState(
             position =

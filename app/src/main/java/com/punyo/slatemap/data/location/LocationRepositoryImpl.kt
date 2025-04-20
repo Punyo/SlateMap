@@ -3,7 +3,6 @@ package com.punyo.slatemap.data.location
 import android.content.Context
 import android.location.Address
 import android.location.Location
-import com.punyo.slatemap.data.location.source.UnlockedLocationSource
 import com.punyo.slatemap.data.location.source.UserLocationSource
 import javax.inject.Inject
 
@@ -12,9 +11,6 @@ class LocationRepositoryImpl
     constructor() : LocationRepository {
         @Inject
         lateinit var userLocationSource: UserLocationSource
-
-        @Inject
-        lateinit var unlockedLocationSource: UnlockedLocationSource
 
         override fun getLastLocation() = userLocationSource.getLastLocation()
 

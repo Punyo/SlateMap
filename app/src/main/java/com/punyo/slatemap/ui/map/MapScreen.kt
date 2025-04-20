@@ -1,5 +1,6 @@
 package com.punyo.slatemap.ui.map
 
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,39 +32,43 @@ fun MapScreen(
     val currentState by mapScreenViewModel.uiState.collectAsStateWithLifecycle()
     val style =
         remember { mutableStateOf(MapStyleOptions.loadRawResourceStyle(context, R.raw.style)) }
-    GoogleMap(
-        modifier = modifier,
-        properties =
-            MapProperties(
-                minZoomPreference = 5.5f,
-                latLngBoundsForCameraTarget = LatLngConstants.japanBoundsForCameraTarget,
-            ),
-        uiSettings =
-            MapUiSettings(
-                compassEnabled = true,
-                mapToolbarEnabled = true,
-                myLocationButtonEnabled = true,
-            ),
-        cameraPositionState = currentState.cameraPosition,
-    ) {
-        MapEffect(block = { map ->
-            map.setMapStyle(style.value)
-            currentState.currentRegion?.let {
+    if (currentState.currentLocation != null && currentState.currentRegion != null) {
+        GoogleMap(
+            modifier = modifier,
+            properties =
+                MapProperties(
+                    minZoomPreference = 5.5f,
+                    latLngBoundsForCameraTarget = LatLngConstants.japanBoundsForCameraTarget,
+                ),
+            uiSettings =
+                MapUiSettings(
+                    compassEnabled = true,
+                    mapToolbarEnabled = true,
+                    myLocationButtonEnabled = true,
+                ),
+            cameraPositionState = currentState.cameraPosition,
+        ) {
+            MapEffect(block = { map ->
+                map.setMapStyle(style.value)
                 GeoJsonLayerGenerator(
                     map = map,
-                    currentUserRegion = it,
+                    currentUserRegion = currentState.currentRegion!!,
                 ).generateGeoJsonLayer(context = context)
-            }
-        })
-        Polygon(
-            points =
-                LatLngConstants.northernHemisphere,
-            holes =
-                listOf(LatLngConstants.japanBoundsForPolygonHole),
-            fillColor = Color.Black,
-            strokeColor = Color.DarkGray,
-            strokeJointType = JointType.BEVEL,
-            strokeWidth = 50f,
+            })
+            Polygon(
+                points =
+                    LatLngConstants.northernHemisphere,
+                holes =
+                    listOf(LatLngConstants.japanBoundsForPolygonHole),
+                fillColor = Color.Black,
+                strokeColor = Color.DarkGray,
+                strokeJointType = JointType.BEVEL,
+                strokeWidth = 50f,
+            )
+        }
+    } else {
+        CircularProgressIndicator(
+            modifier = modifier,
         )
     }
 }

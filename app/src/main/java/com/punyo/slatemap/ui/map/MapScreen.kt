@@ -32,7 +32,7 @@ fun MapScreen(
     val currentState by mapScreenViewModel.uiState.collectAsStateWithLifecycle()
     val style =
         remember { mutableStateOf(MapStyleOptions.loadRawResourceStyle(context, R.raw.style)) }
-    if (currentState.currentLocation != null && currentState.currentRegion != null) {
+    if (currentState.currentLocation != null && currentState.currentRegion != null && currentState.currentLocalityName != null) {
         GoogleMap(
             modifier = modifier,
             properties =
@@ -53,7 +53,10 @@ fun MapScreen(
                 GeoJsonLayerGenerator(
                     map = map,
                     currentUserRegion = currentState.currentRegion!!,
-                ).generateGeoJsonLayer(context = context)
+                ).generateGeoJsonLayer(
+                    context = context,
+                    unlockedLocalityInRegion = listOf(currentState.currentLocalityName!!),
+                )
             })
             Polygon(
                 points =

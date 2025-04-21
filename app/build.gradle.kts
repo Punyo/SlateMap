@@ -81,6 +81,9 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.compiler)
 
     implementation(libs.google.play.services.maps)
     implementation(libs.google.play.services.maps.compose)
@@ -89,6 +92,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.play.services.location)
 
+    ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.android.compiler)
 
     testImplementation(libs.junit)

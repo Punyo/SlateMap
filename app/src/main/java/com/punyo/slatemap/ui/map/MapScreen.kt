@@ -1,6 +1,8 @@
 package com.punyo.slatemap.ui.map
 
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -16,8 +18,8 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Polygon
-import com.google.maps.android.data.geojson.GeoJsonLayer
 import com.punyo.slatemap.R
+import com.punyo.slatemap.application.GeoJsonLayerGenerator
 import com.punyo.slatemap.application.constant.LatLngConstants
 
 @OptIn(MapsComposeExperimentalApi::class)
@@ -27,52 +29,49 @@ fun MapScreen(
     mapScreenViewModel: MapScreenViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-    val currentState = mapScreenViewModel.uiState.collectAsStateWithLifecycle()
+    val currentState by mapScreenViewModel.uiState.collectAsStateWithLifecycle()
     val style =
         remember { mutableStateOf(MapStyleOptions.loadRawResourceStyle(context, R.raw.style)) }
-    GoogleMap(
-        modifier = modifier,
-        properties =
-            MapProperties(
-                minZoomPreference = 5.5f,
-                latLngBoundsForCameraTarget = LatLngConstants.japanBoundsForCameraTarget,
-            ),
-        uiSettings =
-            MapUiSettings(
-                compassEnabled = true,
-                mapToolbarEnabled = true,
-                myLocationButtonEnabled = true,
-            ),
-        cameraPositionState = currentState.value.cameraPosition,
-    ) {
-        MapEffect(block = { map ->
-            map.setMapStyle(style.value)
-            val layer =
-                GeoJsonLayer(map, R.raw.kanto_and_chubu, context)
-            layer.features
-                .filter { feature ->
-                    feature.getProperty("N03_003") == "名古屋市"
-                }.forEach { layer.removeFeature(it) }
-            layer.defaultPolygonStyle.apply {
-                fillColor = 0xff000000.toInt()
-                strokeColor = 0xff000064.toInt()
-                strokeWidth = 5f
-                strokeJointType = JointType.BEVEL
-            }
-            layer.setOnFeatureClickListener { feature ->
-                feature.geometry
-            }
-            layer.addLayerToMap()
-        })
-        Polygon(
-            points =
-                LatLngConstants.northernHemisphere,
-            holes =
-                listOf(LatLngConstants.japanBoundsForPolygonHole),
-            fillColor = Color.Black,
-            strokeColor = Color.DarkGray,
-            strokeJointType = JointType.BEVEL,
-            strokeWidth = 50f,
+    if (currentState.currentLocation != null && currentState.currentRegion != null && currentState.currentLocalityName != null) {
+        GoogleMap(
+            modifier = modifier,
+            properties =
+                MapProperties(
+                    minZoomPreference = 5.5f,
+                    latLngBoundsForCameraTarget = LatLngConstants.japanBoundsForCameraTarget,
+                ),
+            uiSettings =
+                MapUiSettings(
+                    compassEnabled = true,
+                    mapToolbarEnabled = true,
+                    myLocationButtonEnabled = true,
+                ),
+            cameraPositionState = currentState.cameraPosition,
+        ) {
+            MapEffect(block = { map ->
+                map.setMapStyle(style.value)
+                GeoJsonLayerGenerator(
+                    map = map,
+                    currentUserRegion = currentState.currentRegion!!,
+                ).generateGeoJsonLayer(
+                    context = context,
+                    unlockedLocalityInRegion = listOf(currentState.currentLocalityName!!),
+                )
+            })
+            Polygon(
+                points =
+                    LatLngConstants.northernHemisphere,
+                holes =
+                    listOf(LatLngConstants.japanBoundsForPolygonHole),
+                fillColor = Color.Black,
+                strokeColor = Color.DarkGray,
+                strokeJointType = JointType.BEVEL,
+                strokeWidth = 50f,
+            )
+        }
+    } else {
+        CircularProgressIndicator(
+            modifier = modifier,
         )
     }
 }

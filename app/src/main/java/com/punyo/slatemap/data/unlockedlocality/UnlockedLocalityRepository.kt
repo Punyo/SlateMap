@@ -9,14 +9,20 @@ interface UnlockedLocalityRepository {
 
     suspend fun getUnlockedLocalityByRegion(region: Regions): List<UnlockedLocalityEntity>
 
-    suspend fun insertUnlockedLocality(
+    suspend fun getCommitedUnlockedLocalitiesByRegion(region: Regions): List<UnlockedLocalityEntity>
+
+    suspend fun addUnlockedLocality(
         localityName: String,
         unlockedDate: OffsetDateTime,
         region: Regions,
     )
 
+    suspend fun commitUnlockedLocalityChanges()
+
     suspend fun isLocalityUnlocked(
         region: Regions,
         localityName: String,
     ): Boolean
+
+    fun getCurrentChanges(): List<UnlockedLocalityEntity>
 }

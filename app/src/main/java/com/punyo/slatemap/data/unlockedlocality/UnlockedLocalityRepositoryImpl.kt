@@ -11,16 +11,22 @@ class UnlockedLocalityRepositoryImpl
     constructor(
         private val unlockedLocalitySource: UnlockedLocalitySource,
     ) : UnlockedLocalityRepository {
+        private val currentUnlockedLocalityChanges: MutableList<UnlockedLocalityEntity> =
+            mutableListOf()
+
         override suspend fun deleteAllUnlockedLocalities() = unlockedLocalitySource.deleteAllUnlockedLocalities()
 
         override suspend fun getUnlockedLocalityByRegion(region: Regions) = unlockedLocalitySource.getUnlockedLocalityByRegion(region)
 
-        override suspend fun insertUnlockedLocality(
+        override suspend fun getCommitedUnlockedLocalitiesByRegion(region: Regions): List<UnlockedLocalityEntity> =
+            unlockedLocalitySource.getUnlockedLocalityByRegion(region)
+
+        override suspend fun addUnlockedLocality(
             localityName: String,
             unlockedDate: OffsetDateTime,
             region: Regions,
         ) {
-            unlockedLocalitySource.insertUnlockedLocality(
+            currentUnlockedLocalityChanges.add(
                 UnlockedLocalityEntity(
                     localityName = localityName,
                     unlockedDate = unlockedDate.toString(),
@@ -29,8 +35,17 @@ class UnlockedLocalityRepositoryImpl
             )
         }
 
+        override suspend fun commitUnlockedLocalityChanges() {
+            currentUnlockedLocalityChanges.forEach { unlockedLocality ->
+                unlockedLocalitySource.insertUnlockedLocality(unlockedLocality)
+            }
+            currentUnlockedLocalityChanges.clear()
+        }
+
         override suspend fun isLocalityUnlocked(
             region: Regions,
             localityName: String,
         ) = unlockedLocalitySource.isLocalityUnlocked(region, localityName)
+
+        override fun getCurrentChanges(): List<UnlockedLocalityEntity> = currentUnlockedLocalityChanges.toList()
     }

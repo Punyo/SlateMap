@@ -11,10 +11,14 @@ import com.google.maps.android.compose.CameraPositionState
 import com.punyo.slatemap.application.Regions
 import com.punyo.slatemap.data.location.LocationRepository
 import com.punyo.slatemap.data.unlockedlocality.UnlockedLocalityRepository
+import com.punyo.slatemap.data.unlockedlocality.source.UnlockedLocalityEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.OffsetDateTime
 import javax.inject.Inject
@@ -35,6 +39,46 @@ class MapScreenViewModel
                 .addLocationCallback(
                     onLocationUpdate = { location -> onLocationGetSuccess(location) },
                 )
+            viewModelScope.launch {
+                state
+                    .map { it.currentRegion }
+                    .distinctUntilChanged()
+                    .collectLatest { region ->
+                        if (region != null) {
+                            onRegionChanged(region)
+                        }
+                    }
+            }
+        }
+
+        fun getUnlockedLocalitiesInCurrentRegion(): List<UnlockedLocalityEntity>? {
+            val currentState = state.value
+            return if (currentState.commitedUnlockedLocalitiesInCurrentRegion != null) {
+                currentState.commitedUnlockedLocalitiesInCurrentRegion +
+                    unlockedLocalityRepository
+                        .getCurrentChanges()
+                        .filter {
+                            it.region == currentState.currentRegion.toString()
+                        }
+            } else {
+                null
+            }
+        }
+
+        private fun onRegionChanged(region: Regions) {
+            val currentChanges =
+                unlockedLocalityRepository.getCurrentChanges()
+
+            viewModelScope.launch {
+                if (currentChanges.isNotEmpty()) {
+                    unlockedLocalityRepository.commitUnlockedLocalityChanges()
+                }
+                state.value =
+                    state.value.copy(
+                        commitedUnlockedLocalitiesInCurrentRegion =
+                            unlockedLocalityRepository.getCommitedUnlockedLocalitiesByRegion(region),
+                    )
+            }
         }
 
         private fun onLocationGetSuccess(location: Location?) {
@@ -52,7 +96,7 @@ class MapScreenViewModel
                         )
                     val locality = state.value.currentAddress?.locality
                     if (address.locality != locality || locality == null) {
-                        unlockedLocalityRepository.insertUnlockedLocality(
+                        unlockedLocalityRepository.addUnlockedLocality(
                             localityName = address.locality,
                             unlockedDate = OffsetDateTime.now(),
                             region = region,
@@ -86,7 +130,7 @@ data class MapScreenUiState(
     val currentLocation: Location? = null,
     val currentRegion: Regions? = null,
     val currentAddress: Address? = null,
-    val unlockedLocationsIdInCurrentRegion: List<Int>? = null,
+    val commitedUnlockedLocalitiesInCurrentRegion: List<UnlockedLocalityEntity>? = null,
     val cameraPosition: CameraPositionState =
         CameraPositionState(
             position =

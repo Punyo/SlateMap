@@ -1,6 +1,7 @@
 package com.punyo.slatemap.ui.map
 
 import android.content.Context
+import android.location.Address
 import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,11 +10,13 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.punyo.slatemap.application.Regions
 import com.punyo.slatemap.data.location.LocationRepository
+import com.punyo.slatemap.data.unlockedlocality.UnlockedLocalityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.OffsetDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,6 +24,7 @@ class MapScreenViewModel
     @Inject
     constructor(
         private val locationRepository: LocationRepository,
+        private val unlockedLocalityRepository: UnlockedLocalityRepository,
         private val applicationContext: Context,
     ) : ViewModel() {
         private val state = MutableStateFlow(MapScreenUiState())
@@ -35,21 +39,33 @@ class MapScreenViewModel
 
         private fun onLocationGetSuccess(location: Location?) {
             viewModelScope.launch {
-                val address =
-                    location?.let { locationRepository.getAddressFromLocation(applicationContext, it) }
-                val region =
-                    location?.let {
+                location?.let {
+                    val address =
+                        locationRepository.getAddressFromLocation(
+                            applicationContext,
+                            it,
+                        )
+                    val region =
                         locationRepository.getRegionFromLocation(
                             location = it,
                             context = applicationContext,
                         )
+                    val locality = state.value.currentAddress?.locality
+                    if (address.locality != locality || locality == null) {
+                        unlockedLocalityRepository.insertUnlockedLocality(
+                            localityName = address.locality,
+                            unlockedDate = OffsetDateTime.now(),
+                            region = region,
+                        )
                     }
-                state.value =
-                    state.value.copy(
-                        currentLocation = location,
-                        currentRegion = region,
-                        currentLocalityName = address?.locality,
-                    )
+
+                    state.value =
+                        state.value.copy(
+                            currentLocation = location,
+                            currentRegion = region,
+                            currentAddress = address,
+                        )
+                }
             }
         }
 
@@ -69,7 +85,7 @@ class MapScreenViewModel
 data class MapScreenUiState(
     val currentLocation: Location? = null,
     val currentRegion: Regions? = null,
-    val currentLocalityName: String? = null,
+    val currentAddress: Address? = null,
     val unlockedLocationsIdInCurrentRegion: List<Int>? = null,
     val cameraPosition: CameraPositionState =
         CameraPositionState(

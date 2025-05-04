@@ -47,5 +47,5 @@ class UnlockedLocalityRepositoryImpl
             localityName: String,
         ) = unlockedLocalitySource.isLocalityUnlocked(region, localityName)
 
-        override fun getCurrentChanges(): List<UnlockedLocalityEntity> = currentUnlockedLocalityChanges.toList()
+        override fun getCurrentChanges(): List<UnlockedLocalityEntity> = currentUnlockedLocalityChanges
     }

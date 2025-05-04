@@ -1,7 +1,7 @@
 package com.punyo.slatemap.application.di
 
 import android.content.Context
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.punyo.slatemap.application.db.DatabaseProvider
 import com.punyo.slatemap.data.location.source.UserLocationSource
 import com.punyo.slatemap.data.unlockedlocality.source.UnlockedLocalitySource
@@ -17,9 +17,8 @@ import javax.inject.Singleton
 object SourceModule {
     @Provides
     @Singleton
-    fun provideUserLocationSource(
-        @ApplicationContext context: Context,
-    ): UserLocationSource = UserLocationSource(LocationServices.getFusedLocationProviderClient(context))
+    fun provideUserLocationSource(fusedLocationProviderClient: FusedLocationProviderClient): UserLocationSource =
+        UserLocationSource(fusedLocationProviderClient)
 
     @Provides
     @Singleton

@@ -13,6 +13,7 @@ lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
 composeBom = "2025.04.01"
 googlePlayServicesMaps = "19.2.0"
+places = "3.5.0"
 room = "2.7.1"
 googlePlayServicesMapsCompose = "6.1.0"
 mapsUtilsKtx = "5.1.1"
@@ -49,8 +50,11 @@ android-libraries-mapsplatform-secrets-gradle = { group = "com.google.android.li
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+android-libraries-places = { group = "com.google.android.libraries.places", name = "places", version.ref = "places" }
 maps-utils-ktx = { module = "com.google.maps.android:maps-utils-ktx", version.ref = "mapsUtilsKtx" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+
+kotlin-bom = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref = "kotlin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -78,6 +78,7 @@ secrets {
 }
 
 dependencies {
+    implementation(libs.android.libraries.places)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -97,6 +98,8 @@ dependencies {
     implementation(libs.maps.utils.ktx)
     implementation(libs.hilt.android)
     implementation(libs.play.services.location)
+
+    implementation(platform(libs.kotlin.bom))
 
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.android.compiler)

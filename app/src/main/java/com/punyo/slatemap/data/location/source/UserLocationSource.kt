@@ -122,6 +122,7 @@ class UserLocationSource(
         try {
             currentMockingJob?.cancel()
             currentMockingJob = null
+            currentMockingLocation = null
             Result.success(null)
         } catch (e: SecurityException) {
             Result.failure(e)

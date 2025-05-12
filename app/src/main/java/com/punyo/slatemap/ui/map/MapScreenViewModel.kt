@@ -1,15 +1,21 @@
 package com.punyo.slatemap.ui.map
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.location.Address
 import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.PointOfInterest
+import com.google.android.libraries.places.api.model.PhotoMetadata
 import com.google.maps.android.compose.CameraPositionState
 import com.punyo.slatemap.application.Regions
 import com.punyo.slatemap.data.location.LocationRepository
+import com.punyo.slatemap.data.poi.PoiRepository
 import com.punyo.slatemap.data.unlockedlocality.UnlockedLocalityRepository
 import com.punyo.slatemap.data.unlockedlocality.source.UnlockedLocalityEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,6 +35,7 @@ class MapScreenViewModel
     constructor(
         private val locationRepository: LocationRepository,
         private val unlockedLocalityRepository: UnlockedLocalityRepository,
+        private val poiRepository: PoiRepository,
         private val applicationContext: Context,
     ) : ViewModel() {
         private val state = MutableStateFlow(MapScreenUiState())
@@ -113,6 +120,14 @@ class MapScreenViewModel
             }
         }
 
+        fun resetSelectedPoiPlaceId() {
+            state.value =
+                state.value.copy(
+                    currentSelectedPoiDetails = null,
+                    isPoiSelected = false,
+                )
+        }
+
         private fun getCameraPositionState(location: Location?) =
             CameraPositionState(
                 position =
@@ -124,12 +139,51 @@ class MapScreenViewModel
                         7f,
                     ),
             )
+
+        suspend fun getImageBitmapByPhotoMetadata(photoMetadata: PhotoMetadata): Bitmap = poiRepository.fetchPhoto(photoMetadata)
+
+        fun onPoiClicked(
+            googleMap: GoogleMap,
+            poi: PointOfInterest,
+        ) {
+            val position = LatLng(poi.latLng.latitude, poi.latLng.longitude)
+            googleMap.animateCamera(
+                CameraUpdateFactory.newCameraPosition(
+                    CameraPosition
+                        .Builder()
+                        .target(position)
+                        .zoom(googleMap.cameraPosition.zoom)
+                        .bearing(googleMap.cameraPosition.bearing)
+                        .tilt(googleMap.cameraPosition.tilt)
+                        .build(),
+                ),
+            )
+            state.value =
+                state.value.copy(
+                    isPoiSelected = true,
+                )
+            viewModelScope.launch {
+                val place = poiRepository.fetchPlaceDetails(poi.placeId)
+                state.value =
+                    state.value.copy(
+                        currentSelectedPoiDetails =
+                            PoiDetails(
+                                poi.placeId,
+                                poi.name,
+                                place.rating,
+                                place.photoMetadatas,
+                            ),
+                    )
+            }
+        }
     }
 
 data class MapScreenUiState(
     val currentLocation: Location? = null,
     val currentRegion: Regions? = null,
     val currentAddress: Address? = null,
+    val currentSelectedPoiDetails: PoiDetails? = null,
+    val isPoiSelected: Boolean = false,
     val commitedUnlockedLocalitiesInCurrentRegion: List<UnlockedLocalityEntity>? = null,
     val cameraPosition: CameraPositionState =
         CameraPositionState(
@@ -142,4 +196,11 @@ data class MapScreenUiState(
                     10f,
                 ),
         ),
+)
+
+data class PoiDetails(
+    val placeId: String,
+    val name: String,
+    val rating: Double? = null,
+    val photoMetadata: List<PhotoMetadata>? = null,
 )

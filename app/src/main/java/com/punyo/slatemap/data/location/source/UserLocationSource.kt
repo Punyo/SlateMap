@@ -175,6 +175,6 @@ class UserLocationSource(
         }
 
     companion object {
-        private const val LOCATION_UPDATE_INTERVAL = 1000L
+        private const val LOCATION_UPDATE_INTERVAL = 3000L
     }
 }

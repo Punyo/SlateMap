@@ -20,6 +20,7 @@ class PoiInfoSource(
         listOf(
             Place.Field.RATING,
             Place.Field.PHOTO_METADATAS,
+            Place.Field.REVIEWS,
         )
 
     suspend fun fetchPlaceDetails(placeId: String): Place =

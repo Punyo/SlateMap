@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PointOfInterest
 import com.google.android.libraries.places.api.model.PhotoMetadata
+import com.google.android.libraries.places.api.model.Review
 import com.google.maps.android.compose.CameraPositionState
 import com.punyo.slatemap.application.Regions
 import com.punyo.slatemap.data.location.LocationRepository
@@ -172,6 +173,7 @@ class MapScreenViewModel
                                 poi.name,
                                 place.rating,
                                 place.photoMetadatas,
+                                place.reviews,
                             ),
                     )
             }
@@ -203,4 +205,5 @@ data class PoiDetails(
     val name: String,
     val rating: Double? = null,
     val photoMetadata: List<PhotoMetadata>? = null,
+    val googleReviews: List<Review>? = null,
 )

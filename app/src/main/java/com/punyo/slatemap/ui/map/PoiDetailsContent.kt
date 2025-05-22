@@ -180,7 +180,7 @@ fun ReviewsSection(
             )
             if (index != reviews.size - 1) {
                 HorizontalDivider(
-                    modifier = Modifier.padding(top = 8.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     thickness = 1.dp,
                     color = Color.LightGray,
                 )
@@ -247,7 +247,7 @@ fun ReviewItem(
         }
 
         review.text?.let { reviewText ->
-            BoxWithConstraints {
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                 val textLayoutResult =
                     remember(review.text, textMeasurer) {
                         val text = review.text ?: ""
@@ -257,10 +257,10 @@ fun ReviewItem(
                             constraints = constraints,
                         )
                     }
-                if (textLayoutResult.lineCount > MAX_LINES) {
-                    // 行数が閾値を超える場合
-                    if (isExpanded.value) {
-                        Column {
+                Column {
+                    if (textLayoutResult.lineCount > MAX_LINES) {
+                        // 行数が閾値を超える場合
+                        if (isExpanded.value) {
                             // 展開状態：全テキスト表示
                             Text(
                                 text = reviewText,
@@ -280,13 +280,12 @@ fun ReviewItem(
                                     color = MaterialTheme.colorScheme.primary,
                                 )
                             }
-                        }
-                    } else {
-                        // 折りたたみ状態：maxLinesまでのテキスト表示
-                        val endIndex = textLayoutResult.getLineEnd(MAX_LINES - 1, visibleEnd = true)
-                        val truncatedText = reviewText.substring(0, endIndex)
+                        } else {
+                            // 折りたたみ状態：maxLinesまでのテキスト表示
+                            val endIndex =
+                                textLayoutResult.getLineEnd(MAX_LINES - 1, visibleEnd = true)
+                            val truncatedText = reviewText.substring(0, endIndex)
 
-                        Column {
                             Text(
                                 text = truncatedText,
                                 style = textStyle,
@@ -308,14 +307,14 @@ fun ReviewItem(
                                 )
                             }
                         }
+                    } else {
+                        // 行数が閾値以下の場合：全テキスト表示
+                        Text(
+                            text = reviewText,
+                            style = textStyle,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
                     }
-                } else {
-                    // 行数が閾値以下の場合：全テキスト表示
-                    Text(
-                        text = reviewText,
-                        style = textStyle,
-                        modifier = Modifier.padding(top = 4.dp),
-                    )
                 }
             }
         }
@@ -338,7 +337,7 @@ private fun PoiDetailContentPreview() {
         Review
             .builder(1.2, AuthorAttribution.builder("A").build())
             .setText(
-                "これはながああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああいレビューのテキストです。",
+                "これはながあああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ\nあああああああああああああああああああああああああああああああああああああああああああああああああああああああああああいレビューのテキストです。",
             ).setPublishTime("2023-10-01T12:00:00Z")
             .build()
     MaterialTheme {

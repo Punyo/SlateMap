@@ -4,7 +4,9 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +21,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,6 +38,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,6 +48,8 @@ import com.google.android.libraries.places.api.model.AuthorAttribution
 import com.google.android.libraries.places.api.model.PhotoMetadata
 import com.google.android.libraries.places.api.model.Review
 import com.punyo.slatemap.R
+
+private const val MAX_LINES = 3
 
 @Composable
 private fun PhotoPlaceholder(
@@ -187,6 +194,10 @@ fun ReviewItem(
     review: Review,
     modifier: Modifier = Modifier,
 ) {
+    val textStyle = MaterialTheme.typography.bodyMedium
+    val isExpanded = remember { mutableStateOf(false) }
+    val textMeasurer = rememberTextMeasurer()
+
     Column(
         modifier =
             modifier
@@ -205,9 +216,7 @@ fun ReviewItem(
                     buildAnnotatedString {
                         if (review.authorAttribution.uri != null) {
                             withLink(
-                                LinkAnnotation.Url(
-                                    review.authorAttribution.uri!!,
-                                ),
+                                LinkAnnotation.Url(review.authorAttribution.uri!!),
                             ) {
                                 append(review.authorAttribution.name)
                             }
@@ -230,23 +239,86 @@ fun ReviewItem(
         // 投稿日時
         review.publishTime?.let {
             Text(
-                text = it.toString(),
+                text = it,
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
                 modifier = Modifier.padding(top = 2.dp),
             )
         }
 
-        // レビューテキスト
-        review.text?.let {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 4.dp),
-            )
-        }
+        review.text?.let { reviewText ->
+            BoxWithConstraints {
+                val textLayoutResult =
+                    remember(review.text, textMeasurer) {
+                        val text = review.text ?: ""
+                        textMeasurer.measure(
+                            text = text,
+                            style = textStyle,
+                            constraints = constraints,
+                        )
+                    }
+                if (textLayoutResult.lineCount > MAX_LINES) {
+                    // 行数が閾値を超える場合
+                    if (isExpanded.value) {
+                        Column {
+                            // 展開状態：全テキスト表示
+                            Text(
+                                text = reviewText,
+                                style = textStyle,
+                                modifier = Modifier.padding(top = 4.dp),
+                            )
 
-//        Spacer(modifier = Modifier.height(8.dp))
+                            // 「閉じる」ボタン
+                            TextButton(
+                                onClick = { isExpanded.value = false },
+                                modifier = Modifier.align(Alignment.End),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            ) {
+                                Text(
+                                    text = "閉じる",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                    } else {
+                        // 折りたたみ状態：maxLinesまでのテキスト表示
+                        val endIndex = textLayoutResult.getLineEnd(MAX_LINES - 1, visibleEnd = true)
+                        val truncatedText = reviewText.substring(0, endIndex)
+
+                        Column {
+                            Text(
+                                text = truncatedText,
+                                style = textStyle,
+                                modifier = Modifier.padding(top = 4.dp),
+                                maxLines = MAX_LINES,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+
+                            // 「もっと見る」ボタン
+                            TextButton(
+                                onClick = { isExpanded.value = true },
+                                modifier = Modifier.align(Alignment.End),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            ) {
+                                Text(
+                                    text = "もっと見る",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    // 行数が閾値以下の場合：全テキスト表示
+                    Text(
+                        text = reviewText,
+                        style = textStyle,
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -266,7 +338,7 @@ private fun PoiDetailContentPreview() {
         Review
             .builder(1.2, AuthorAttribution.builder("A").build())
             .setText(
-                "これはながあああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああいレビューのテキストです。",
+                "これはながああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああいレビューのテキストです。",
             ).setPublishTime("2023-10-01T12:00:00Z")
             .build()
     MaterialTheme {

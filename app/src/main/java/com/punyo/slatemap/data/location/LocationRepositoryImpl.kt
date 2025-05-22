@@ -12,7 +12,7 @@ class LocationRepositoryImpl
         @Inject
         lateinit var userLocationSource: UserLocationSource
 
-        override fun getLastLocation() = userLocationSource.getLastLocation()
+        override suspend fun getLastLocation() = userLocationSource.getLastLocation()
 
         override fun addLocationCallback(onLocationUpdate: (Location) -> Unit) = userLocationSource.addLocationCallback(onLocationUpdate)
 

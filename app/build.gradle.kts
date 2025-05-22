@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.android.room)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.android.libraries.mapsplatform.secrets.gradle)
     alias(libs.plugins.devtools.ksp)
@@ -41,6 +42,12 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
+    room {
+        schemaDirectory("$projectDir/schemas")
+        generateKotlin = true
+    }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
@@ -71,6 +78,7 @@ secrets {
 }
 
 dependencies {
+    implementation(libs.android.libraries.places)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -83,7 +91,6 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.compiler)
 
     implementation(libs.google.play.services.maps)
     implementation(libs.google.play.services.maps.compose)
@@ -91,6 +98,8 @@ dependencies {
     implementation(libs.maps.utils.ktx)
     implementation(libs.hilt.android)
     implementation(libs.play.services.location)
+
+    implementation(platform(libs.kotlin.bom))
 
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.android.compiler)

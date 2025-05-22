@@ -13,7 +13,6 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.Task
 import com.punyo.slatemap.R
 import com.punyo.slatemap.application.Regions
 import kotlinx.coroutines.CoroutineScope
@@ -43,12 +42,29 @@ class UserLocationSource(
         }
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    fun getLastLocation(): Result<Task<Location>> =
-        try {
-            Result.success(fusedLocationProviderClient.lastLocation)
+    suspend fun getLastLocation(): Result<Location> {
+        if (currentMockingLocation != null) {
+            return Result.success(currentMockingLocation!!)
+        }
+        return try {
+            val location =
+                suspendCancellableCoroutine { continuation ->
+                    fusedLocationProviderClient.lastLocation
+                        .addOnSuccessListener { location ->
+                            continuation.resume(location)
+                        }.addOnFailureListener { _ ->
+                            continuation.resume(null)
+                        }
+                }
+            if (location != null) {
+                Result.success(location)
+            } else {
+                Result.failure(Exception("Location not available"))
+            }
         } catch (e: SecurityException) {
             Result.failure(e)
         }
+    }
 
     fun addLocationCallback(onLocationUpdate: (Location) -> Unit): Result<Nothing?> =
         try {
@@ -79,8 +95,6 @@ class UserLocationSource(
 
     fun setMockLocation(location: Location): Result<Nothing?> =
         try {
-            fusedLocationProviderClient.setMockMode(true)
-            fusedLocationProviderClient.setMockLocation(location)
             currentMockingLocation = location
             if (currentMockingJob == null) {
                 currentMockingJob =
@@ -106,9 +120,9 @@ class UserLocationSource(
 
     fun clearMockLocation(): Result<Nothing?> =
         try {
-            fusedLocationProviderClient.setMockMode(false)
             currentMockingJob?.cancel()
             currentMockingJob = null
+            currentMockingLocation = null
             Result.success(null)
         } catch (e: SecurityException) {
             Result.failure(e)
@@ -161,6 +175,6 @@ class UserLocationSource(
         }
 
     companion object {
-        private const val LOCATION_UPDATE_INTERVAL = 1000L
+        private const val LOCATION_UPDATE_INTERVAL = 3000L
     }
 }

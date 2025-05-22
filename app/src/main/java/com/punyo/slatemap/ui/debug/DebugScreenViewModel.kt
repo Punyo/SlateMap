@@ -3,6 +3,7 @@ package com.punyo.slatemap.ui.debug
 import android.app.Application
 import android.location.Location
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.punyo.slatemap.data.location.LocationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +22,9 @@ class DebugScreenViewModel
         private val locationRepository: LocationRepository,
     ) : AndroidViewModel(application) {
         init {
-            updateLocation()
+            viewModelScope.launch {
+                updateLocation()
+            }
         }
 
         private val state = MutableStateFlow(DebugScreenUiState())
@@ -37,11 +40,14 @@ class DebugScreenViewModel
             }
         }
 
-        fun updateLocation() {
+        suspend fun updateLocation() {
             locationRepository
                 .getLastLocation()
-                .onSuccess { it ->
-                    it.addOnSuccessListener { onLocationGetSuccess(it) }
+                .onSuccess {
+                    onLocationGetSuccess(it)
+                }.onFailure {
+                    state.value =
+                        state.value.copy(currentGeoInfoString = "位置情報の取得に失敗しました")
                 }
         }
 
@@ -49,7 +55,9 @@ class DebugScreenViewModel
             locationRepository
                 .clearMockLocation()
                 .onSuccess {
-                    updateLocation()
+                    viewModelScope.launch {
+                        updateLocation()
+                    }
                 }
         }
 
@@ -57,7 +65,9 @@ class DebugScreenViewModel
             locationRepository
                 .setMockLocation(location)
                 .onSuccess {
-                    updateLocation()
+                    viewModelScope.launch {
+                        updateLocation()
+                    }
                 }
         }
     }

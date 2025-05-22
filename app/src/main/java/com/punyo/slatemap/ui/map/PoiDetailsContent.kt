@@ -61,14 +61,8 @@ private fun PhotoPlaceholder(
     val latestOnLoadBitmapByPhotoMetadata by rememberUpdatedState(onLoadBitmapByPhotoMetadata)
     LaunchedEffect(it) {
         isLoading.value = true
-        try {
-            imageBitmap.value =
-                latestOnLoadBitmapByPhotoMetadata(it)
-        } catch (e: Exception) {
-            // エラー処理が必要な場合はここに追加
-        } finally {
-            isLoading.value = false
-        }
+        imageBitmap.value =
+            latestOnLoadBitmapByPhotoMetadata(it)
     }
 
     if (isLoading.value) {
@@ -257,7 +251,7 @@ fun ReviewItem(
                             constraints = constraints,
                         )
                     }
-                Column {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     if (textLayoutResult.lineCount > MAX_LINES) {
                         // 行数が閾値を超える場合
                         if (isExpanded.value) {

@@ -178,6 +178,30 @@ class MapScreenViewModel
                     )
             }
         }
+
+        fun addMarker(latLng: LatLng) {
+            state.value =
+                state.value.copy(
+                    markers = state.value.markers + latLng,
+                )
+        }
+
+        fun removeMarker(latLng: LatLng) {
+            state.value =
+                state.value.copy(
+                    markers =
+                        state.value.markers.filter {
+                            it.latitude != latLng.latitude || it.longitude != latLng.longitude
+                        },
+                )
+        }
+
+        fun clearAllMarkers() {
+            state.value =
+                state.value.copy(
+                    markers = emptyList(),
+                )
+        }
     }
 
 data class MapScreenUiState(
@@ -187,6 +211,7 @@ data class MapScreenUiState(
     val currentSelectedPoiDetails: PoiDetails? = null,
     val isPoiSelected: Boolean = false,
     val commitedUnlockedLocalitiesInCurrentRegion: List<UnlockedLocalityEntity>? = null,
+    val markers: List<LatLng> = emptyList(),
     val cameraPosition: CameraPositionState =
         CameraPositionState(
             position =

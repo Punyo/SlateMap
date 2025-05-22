@@ -22,6 +22,8 @@ import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MapsComposeExperimentalApi
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polygon
 import com.punyo.slatemap.R
 import com.punyo.slatemap.application.GeoJsonLayerGenerator
@@ -59,6 +61,9 @@ fun MapScreen(
                     indoorLevelPickerEnabled = true,
                 ),
             cameraPositionState = currentState.cameraPosition,
+            onMapLongClick = { latLng ->
+                mapScreenViewModel.addMarker(latLng)
+            },
         ) {
             MapEffect(block = { map ->
                 map.isMyLocationEnabled = true
@@ -89,6 +94,18 @@ fun MapScreen(
                 strokeJointType = JointType.BEVEL,
                 strokeWidth = 50f,
             )
+
+            // マーカーの表示
+            currentState.markers.forEach { latLng ->
+                Marker(
+                    state = MarkerState(position = latLng),
+                    title = "ピン",
+                    snippet = "緯度: ${latLng.latitude}, 経度: ${latLng.longitude}",
+                    onInfoWindowLongClick = {
+                        mapScreenViewModel.removeMarker(latLng)
+                    },
+                )
+            }
             if (currentState.isPoiSelected) {
                 ModalBottomSheet(
                     onDismissRequest = {

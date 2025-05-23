@@ -26,7 +26,6 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polygon
 import com.punyo.slatemap.R
-import com.punyo.slatemap.application.GeoJsonLayerGenerator
 import com.punyo.slatemap.application.constant.LatLngConstants
 
 @OptIn(MapsComposeExperimentalApi::class, ExperimentalMaterial3Api::class)
@@ -71,18 +70,18 @@ fun MapScreen(
                 map.setOnPoiClickListener {
                     mapScreenViewModel.onPoiClicked(map, it)
                 }
-                GeoJsonLayerGenerator(
-                    map = map,
-                    currentUserRegion = currentState.currentRegion!!,
-                ).generateGeoJsonLayer(
-                    context = context,
-                    unlockedLocalityInRegion =
-                        mapScreenViewModel
-                            .getUnlockedLocalitiesInCurrentRegion()!!
-                            .map {
-                                it.localityName
-                            },
-                )
+//                GeoJsonLayerGenerator(
+//                    map = map,
+//                    currentUserRegion = currentState.currentRegion!!,
+//                ).generateGeoJsonLayer(
+//                    context = context,
+//                    unlockedLocalityInRegion =
+//                        mapScreenViewModel
+//                            .getUnlockedLocalitiesInCurrentRegion()!!
+//                            .map {
+//                                it.localityName
+//                            },
+//                )
             })
             Polygon(
                 points =
@@ -101,8 +100,9 @@ fun MapScreen(
                     state = MarkerState(position = latLng),
                     title = "ピン",
                     snippet = "緯度: ${latLng.latitude}, 経度: ${latLng.longitude}",
-                    onInfoWindowLongClick = {
+                    onClick = {
                         mapScreenViewModel.removeMarker(latLng)
+                        true
                     },
                 )
             }

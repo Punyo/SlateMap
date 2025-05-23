@@ -99,6 +99,9 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.play.services.location)
 
+    implementation(libs.coil.kt)
+    implementation(libs.coil.kt.compose)
+
     implementation(platform(libs.kotlin.bom))
 
     ksp(libs.androidx.room.compiler)

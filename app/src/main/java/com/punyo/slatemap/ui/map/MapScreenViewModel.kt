@@ -124,8 +124,8 @@ class MapScreenViewModel
         fun resetSelectedPoiPlaceId() {
             state.value =
                 state.value.copy(
-                    currentSelectedPoiDetails = null,
-                    isPoiSelected = false,
+                    currentSelectedGooglePoiDetails = null,
+                    isGooglePoiSelected = false,
                 )
         }
 
@@ -161,14 +161,14 @@ class MapScreenViewModel
             )
             state.value =
                 state.value.copy(
-                    isPoiSelected = true,
+                    isGooglePoiSelected = true,
                 )
             viewModelScope.launch {
                 val place = poiRepository.fetchPlaceDetails(poi.placeId)
                 state.value =
                     state.value.copy(
-                        currentSelectedPoiDetails =
-                            PoiDetails(
+                        currentSelectedGooglePoiDetails =
+                            GooglePoiDetails(
                                 poi.placeId,
                                 poi.name,
                                 place.rating,
@@ -177,6 +177,20 @@ class MapScreenViewModel
                             ),
                     )
             }
+        }
+
+        fun onPosSelected(latLng: LatLng) {
+            state.value =
+                state.value.copy(
+                    isPosSelected = latLng,
+                )
+        }
+
+        fun resetSelectedPos() {
+            state.value =
+                state.value.copy(
+                    isPosSelected = null,
+                )
         }
 
         fun addMarker(latLng: LatLng) {
@@ -208,8 +222,9 @@ data class MapScreenUiState(
     val currentLocation: Location? = null,
     val currentRegion: Regions? = null,
     val currentAddress: Address? = null,
-    val currentSelectedPoiDetails: PoiDetails? = null,
-    val isPoiSelected: Boolean = false,
+    val currentSelectedGooglePoiDetails: GooglePoiDetails? = null,
+    val isGooglePoiSelected: Boolean = false,
+    val isPosSelected: LatLng? = null,
     val commitedUnlockedLocalitiesInCurrentRegion: List<UnlockedLocalityEntity>? = null,
     val markers: List<LatLng> = emptyList(),
     val cameraPosition: CameraPositionState =
@@ -225,7 +240,7 @@ data class MapScreenUiState(
         ),
 )
 
-data class PoiDetails(
+data class GooglePoiDetails(
     val placeId: String,
     val name: String,
     val rating: Double? = null,

@@ -88,7 +88,7 @@ private fun PhotoPlaceholder(
 @Composable
 fun PoiDetailContent(
     name: String,
-    place: PoiDetails,
+    place: GooglePoiDetails,
     onLoadBitmapByPhotoMetadata: suspend (PhotoMetadata) -> Bitmap,
     modifier: Modifier = Modifier,
 ) {
@@ -333,8 +333,8 @@ private fun PoiDetailContentPreview() {
             .build()
     MaterialTheme {
         MaterialTheme {
-            val mockPoiDetails =
-                PoiDetails(
+            val mockGooglePoiDetails =
+                GooglePoiDetails(
                     placeId = "ChIJaXQRs6lZwokRY6EFpJnhNNE",
                     name = "エンパイア ステート ビル",
                     rating = 4.5,
@@ -343,8 +343,8 @@ private fun PoiDetailContentPreview() {
                 )
 
             PoiDetailContent(
-                name = mockPoiDetails.name,
-                place = mockPoiDetails,
+                name = mockGooglePoiDetails.name,
+                place = mockGooglePoiDetails,
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp),
                 onLoadBitmapByPhotoMetadata = {
                     return@PoiDetailContent context

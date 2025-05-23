@@ -62,6 +62,7 @@ fun MapScreen(
             cameraPositionState = currentState.cameraPosition,
             onMapLongClick = { latLng ->
                 mapScreenViewModel.addMarker(latLng)
+                mapScreenViewModel.onPosSelected(latLng)
             },
         ) {
             MapEffect(block = { map ->
@@ -106,17 +107,17 @@ fun MapScreen(
                     },
                 )
             }
-            if (currentState.isPoiSelected) {
+            if (currentState.isGooglePoiSelected) {
                 ModalBottomSheet(
                     onDismissRequest = {
                         mapScreenViewModel.resetSelectedPoiPlaceId()
                     },
                     sheetState = bottomSheetState,
                 ) {
-                    if (currentState.currentSelectedPoiDetails != null) {
+                    if (currentState.currentSelectedGooglePoiDetails != null) {
                         PoiDetailContent(
-                            name = currentState.currentSelectedPoiDetails!!.name,
-                            place = currentState.currentSelectedPoiDetails!!,
+                            name = currentState.currentSelectedGooglePoiDetails!!.name,
+                            place = currentState.currentSelectedGooglePoiDetails!!,
                             modifier = Modifier.padding(start = 16.dp, end = 16.dp),
                             onLoadBitmapByPhotoMetadata =
                                 mapScreenViewModel::getImageBitmapByPhotoMetadata,

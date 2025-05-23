@@ -57,15 +57,13 @@ private fun PhotoPlaceholder(
     onLoadBitmapByPhotoMetadata: suspend (PhotoMetadata) -> Bitmap,
 ) {
     val imageBitmap = remember { mutableStateOf<Bitmap?>(null) }
-    val isLoading = remember { mutableStateOf(true) }
     val latestOnLoadBitmapByPhotoMetadata by rememberUpdatedState(onLoadBitmapByPhotoMetadata)
     LaunchedEffect(it) {
-        isLoading.value = true
         imageBitmap.value =
             latestOnLoadBitmapByPhotoMetadata(it)
     }
 
-    if (isLoading.value) {
+    if (imageBitmap.value == null) {
         Box(
             modifier = Modifier.size(width = 240.dp, height = 160.dp),
             contentAlignment = Alignment.Center,
@@ -141,7 +139,6 @@ fun PoiDetailContent(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // レビュー欄
         place.googleReviews?.let {
             ReviewsSection(
                 reviews = it,
